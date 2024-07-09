@@ -97,8 +97,6 @@ namespace ControlValley
         {
             CrowdResponse.Status status = CrowdResponse.Status.STATUS_SUCCESS;
             string message = "";
-
-
             try
             {
                 NetworkManager networkManager = StartOfRound.Instance.NetworkManager;
@@ -119,8 +117,6 @@ namespace ControlValley
                 status = CrowdResponse.Status.STATUS_RETRY;
                 TestMod.mls.LogInfo($"Crowd Control Error: {e.ToString()}");
             }
-
-
             return new CrowdResponse(req.GetReqID(), status, message);
         }
 
@@ -128,7 +124,6 @@ namespace ControlValley
         {
             CrowdResponse.Status status = CrowdResponse.Status.STATUS_SUCCESS;
             string message = "";
-
             try
             {
                 var playerRef = StartOfRound.Instance.localPlayerController;
@@ -154,7 +149,6 @@ namespace ControlValley
                 status = CrowdResponse.Status.STATUS_RETRY;
                 TestMod.mls.LogInfo($"Crowd Control Error: {e.ToString()}");
             }
-
             return new CrowdResponse(req.GetReqID(), status, message);
         }
 
@@ -520,7 +514,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayScreech(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -536,7 +530,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayScreech(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -552,7 +546,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayScreech(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -619,7 +613,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayBreathing(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -635,7 +629,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayBreathing(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -651,7 +645,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayBreathing(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -718,7 +712,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayBreathing(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -734,7 +728,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayBreathing(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -750,7 +744,7 @@ namespace ControlValley
                                     {
                                         SpawnAndPlayBreathing(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -1311,7 +1305,7 @@ namespace ControlValley
                             if (!playerRef.isInsideFactory) return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_RETRY, "Player is outside");
 
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
 
                         }
@@ -1333,7 +1327,7 @@ namespace ControlValley
                                 if (playerRef.isInsideFactory) return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_RETRY, "Player is outside");
 
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
 
                             }
@@ -1403,7 +1397,7 @@ namespace ControlValley
                                 TestMod.SpawnEnemy(outsideEnemy, 1, false);
 
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 TestMod.mls.LogWarning("Monster is Not Present Outside on Moon, Aborting");
 
@@ -1420,7 +1414,7 @@ namespace ControlValley
                                 TestMod.SpawnEnemy(outsideEnemy, 1, true);
 
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 TestMod.mls.LogWarning("Monster is Not Present Inside on Moon, Aborting");
                             }
@@ -1501,7 +1495,7 @@ namespace ControlValley
                                 if (!player.isInsideFactory) return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_RETRY);
 
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
 
                             }
@@ -1524,7 +1518,7 @@ namespace ControlValley
                                     if (player.isInsideFactory) return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_RETRY, "Player is outside");
 
                                 }
-                                catch (Exception e)
+                                catch (Exception)
                                 {
 
                                 }
@@ -1595,7 +1589,7 @@ namespace ControlValley
                                     TestMod.SpawnCrewEnemy(player, outsideEnemy, 1, false);
 
                                 }
-                                catch (Exception e)
+                                catch (Exception)
                                 {
 
                                 }
@@ -1612,7 +1606,7 @@ namespace ControlValley
                                     TestMod.SpawnCrewEnemy(player, outsideEnemy, 1, false);
 
                                 }
-                                catch (Exception e)
+                                catch (Exception)
                                 {
 
                                 }
@@ -2075,26 +2069,17 @@ namespace ControlValley
         public static CrowdResponse BuyCruiser(ControlClient client, CrowdRequest req)
         {
             CrowdResponse.Status status = CrowdResponse.Status.STATUS_SUCCESS;
-            string message = "";
-            int give = 0;
             var playerRef = StartOfRound.Instance.localPlayerController;
-
-
             Terminal terminal = UnityEngine.Object.FindObjectOfType<Terminal>();
             var veh = terminal.buyableVehicles[0];
             string[] enteredText = req.code.Split('_');
-            if (enteredText.Length == 2)
-            {
-            }
-            else
+            if (!enteredText.Length.Equals(2))
             {
                 return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
-            }
 
+            }
             try
             {
-
-
                 if (StartOfRound.Instance.timeSinceRoundStarted < 2f || !playerRef.playersManager.shipDoorsEnabled) status = CrowdResponse.Status.STATUS_RETRY;
                 else
                 {
@@ -2111,25 +2096,21 @@ namespace ControlValley
                 status = CrowdResponse.Status.STATUS_RETRY;
                 TestMod.mls.LogInfo($"Crowd Control Error: {e.ToString()}");
             }
-
-            return new CrowdResponse(req.GetReqID(), status, message);
+            return new CrowdResponse(req.GetReqID(), status, "");
         }
 
 
         public static CrowdResponse TurnOnVehicle(ControlClient client, CrowdRequest req)
         {
             CrowdResponse.Status status = CrowdResponse.Status.STATUS_SUCCESS;
-            string message = "";
             var playerRef = StartOfRound.Instance.localPlayerController;
             string[] enteredText = req.code.Split('_');
             bool found = false;
             VehicleController Veh1 = UnityEngine.Object.FindObjectOfType<VehicleController>();
-            if (enteredText.Length == 2)
-            {
-            }
-            else
+            if (!enteredText.Length.Equals(2))
             {
                 return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
+
             }
             if (!found)
             {
@@ -2138,7 +2119,7 @@ namespace ControlValley
                     if (Veh1.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
                     else found = true;
                 }
-                catch (Exception e) { status = CrowdResponse.Status.STATUS_RETRY; }
+                catch (Exception) { status = CrowdResponse.Status.STATUS_RETRY; }
             }
             if (found)
             {
@@ -2155,10 +2136,6 @@ namespace ControlValley
                                 Veh1.ignitionStarted = true;
                                 Veh1.StartIgnitionServerRpc(1);
                             }
-                            else
-                            {
-
-                            }
                         });
                     }
                 }
@@ -2168,23 +2145,20 @@ namespace ControlValley
                     TestMod.mls.LogInfo($"Crowd Control Error: {e.ToString()}");
                 }
             }
-            return new CrowdResponse(req.GetReqID(), status, message);
+            return new CrowdResponse(req.GetReqID(), status, "");
         }
 
         public static CrowdResponse SpringChair(ControlClient client, CrowdRequest req)
         {
             CrowdResponse.Status status = CrowdResponse.Status.STATUS_SUCCESS;
-            string message = "";
             var playerRef = StartOfRound.Instance.localPlayerController;
             bool found = false;
             string[] enteredText = req.code.Split('_');
             VehicleController Veh1 = UnityEngine.Object.FindObjectOfType<VehicleController>();
-            if (enteredText.Length == 2)
-            {
-            }
-            else
+            if (!enteredText.Length.Equals(2))
             {
                 return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
+
             }
             if (!found)
             {
@@ -2193,7 +2167,7 @@ namespace ControlValley
                     if (Veh1.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
                     else found = true;
                 }
-                catch (Exception e) { status = CrowdResponse.Status.STATUS_RETRY; }
+                catch (Exception) { status = CrowdResponse.Status.STATUS_RETRY; }
             }
             if (found)
             {
@@ -2208,10 +2182,6 @@ namespace ControlValley
                             {
                                 Veh1.SpringDriverSeatServerRpc();
                             }
-                            else
-                            {
-
-                            }
                         });
                     }
                 }
@@ -2221,21 +2191,17 @@ namespace ControlValley
                     TestMod.mls.LogInfo($"Crowd Control Error: {e.ToString()}");
                 }
             }
-            return new CrowdResponse(req.GetReqID(), status, message);
+            return new CrowdResponse(req.GetReqID(), status, "");
         }
 
         public static CrowdResponse TurnOffEngine(ControlClient client, CrowdRequest req)
         {
             CrowdResponse.Status status = CrowdResponse.Status.STATUS_SUCCESS;
-            string message = "";
             var playerRef = StartOfRound.Instance.localPlayerController;
             bool found = false;
             string[] enteredText = req.code.Split('_');
             VehicleController Veh1 = UnityEngine.Object.FindObjectOfType<VehicleController>();
-            if (enteredText.Length == 3)
-            {
-            }
-            else
+            if (!enteredText.Length.Equals(3))
             {
                 return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
             }
@@ -2246,7 +2212,7 @@ namespace ControlValley
                     if (Veh1.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
                     else found = true;
                 }
-                catch (Exception e) { status = CrowdResponse.Status.STATUS_RETRY; }
+                catch (Exception) { status = CrowdResponse.Status.STATUS_RETRY; }
             }
             if (found)
             {
@@ -2261,10 +2227,6 @@ namespace ControlValley
                             {
                                 Veh1.RemoveKeyFromIgnition();
                             }
-                            else
-                            {
-
-                            }
                         });
                     }
                 }
@@ -2274,21 +2236,17 @@ namespace ControlValley
                     TestMod.mls.LogInfo($"Crowd Control Error: {e.ToString()}");
                 }
             }
-            return new CrowdResponse(req.GetReqID(), status, message);
+            return new CrowdResponse(req.GetReqID(), status, "");
         }
 
         public static CrowdResponse DestroyVehicle(ControlClient client, CrowdRequest req)
         {
             CrowdResponse.Status status = CrowdResponse.Status.STATUS_SUCCESS;
-            string message = "";
             var playerRef = StartOfRound.Instance.localPlayerController;
             bool found = false;
             string[] enteredText = req.code.Split('_');
             VehicleController Veh1 = UnityEngine.Object.FindObjectOfType<VehicleController>();
-            if (enteredText.Length == 2)
-            {
-            }
-            else
+            if (!enteredText.Length.Equals(2))
             {
                 return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
             }
@@ -2299,7 +2257,7 @@ namespace ControlValley
                     if (Veh1.currentDriver == playerRef) status = CrowdResponse.Status.STATUS_RETRY;
                     else found = true;
                 }
-                catch (Exception e) { status = CrowdResponse.Status.STATUS_RETRY; }
+                catch (Exception) { status = CrowdResponse.Status.STATUS_RETRY; }
             }
             if (found)
             {
@@ -2314,10 +2272,6 @@ namespace ControlValley
                             {
                                 Veh1.DestroyCarServerRpc(1);
                             }
-                            else
-                            {
-
-                            }
                         });
                     }
                 }
@@ -2327,7 +2281,7 @@ namespace ControlValley
                     TestMod.mls.LogInfo($"Crowd Control Error: {e.ToString()}");
                 }
             }
-            return new CrowdResponse(req.GetReqID(), status, message);
+            return new CrowdResponse(req.GetReqID(), status, "");
         }
 
         #endregion
@@ -2386,7 +2340,7 @@ namespace ControlValley
                                 }
                             }
                         }
-                        catch (Exception ex) { }
+                        catch (Exception) { }
                         StartOfRound.Instance.currentLevel.currentWeather = (LevelWeatherType)give;
 
                         //TestMod.mls.LogInfo("weather changed");
@@ -2410,7 +2364,7 @@ namespace ControlValley
                                 }
                             }
                         }
-                        catch (Exception ex) { }
+                        catch (Exception) { }
                         //callFunc(RoundManager.Instance, "SetToCurrentWeatherLevel", null);
 
                         //TestMod.mls.LogInfo($"round manager: {RoundManager.Instance}");
@@ -3216,7 +3170,7 @@ namespace ControlValley
                                     {
                                         SpawnAnMakeWebs(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -3232,7 +3186,7 @@ namespace ControlValley
                                     {
                                         SpawnAnMakeWebs(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }
@@ -3248,7 +3202,7 @@ namespace ControlValley
                                     {
                                         SpawnAnMakeWebs(outsideEnemy);
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
 
                                     }

@@ -368,7 +368,7 @@ namespace LethalCompanyTestMod
                                             TestMod.SpawnEnemy(outsideEnemy, 1, false);
 
                                         }
-                                        catch (Exception e)
+                                        catch (Exception)
                                         {
 
                                         }
@@ -386,7 +386,7 @@ namespace LethalCompanyTestMod
                                             TestMod.SpawnEnemy(outsideEnemy, 1, false);
 
                                         }
-                                        catch (Exception e)
+                                        catch (Exception)
                                         {
 
                                         }
@@ -465,7 +465,7 @@ namespace LethalCompanyTestMod
                                             TestMod.SpawnCrewEnemy(player, outsideEnemy, 1, false);
 
                                         }
-                                        catch (Exception e)
+                                        catch (Exception)
                                         {
 
                                         }
@@ -482,7 +482,7 @@ namespace LethalCompanyTestMod
                                             TestMod.SpawnCrewEnemy(player, outsideEnemy, 1, false);
 
                                         }
-                                        catch (Exception e)
+                                        catch (Exception)
                                         {
 
                                         }

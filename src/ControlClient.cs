@@ -390,7 +390,7 @@ namespace ControlValley
                         TestMod.mls.LogInfo("Failed to connect to Crowd Control");
                     Socket.Close();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     TestMod.mls.LogInfo("Failed to connect to Crowd Control");
                 }
