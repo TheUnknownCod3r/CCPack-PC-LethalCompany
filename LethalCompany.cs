@@ -69,6 +69,7 @@ namespace CrowdControl.Games.Packs.LethalCompany
                 //new("Spawn Cobwebs", "webs") { Category = "Spawn Enemies"},
                 new("Spawn Mimic", "spawn_mimic") { Category = "Spawn Enemies"},
                 new("Spawn Landmine", "spawn_landmine") { Category = "Spawn Enemies"},
+                new("Spawn Turret", "spawn_turret") { Category = "Spawn Enemies"},
                 new("Spawn Old Bird", "spawn_radmech") { Category = "Spawn Enemies"},
                 new("Spawn Clay Surgeon", "spawn_clay") { Category = "Spawn Enemies"},//Tested on Dine
                 new("Spawn Butler", "spawn_butler"){ Category = "Spawn Enemies"},//Tested on Dine
@@ -93,6 +94,7 @@ namespace CrowdControl.Games.Packs.LethalCompany
                 new("Spawn Ghost Girl at Crewmate", "cspawn_girl") { Category = "Spawn Enemies"},
                 new("Spawn Mimic at Crewmate", "cspawn_mimic") { Category = "Spawn Enemies"},
                 new("Spawn Landmine at Crewmate", "cspawn_landmine") { Category = "Spawn Enemies"},
+                new("Spawn Turret at Crewmate", "cspawn_turret") { Category = "Spawn Enemies"},
                 new("Spawn Old Bird at Crewmate", "cspawn_radmech") { Category = "Spawn Enemies" },
                 new("Spawn Clay Surgeon at Crewmate", "cspawn_clay") { Category = "Spawn Enemies"},//Tested on Dine
                 new("Spawn Butler at Crewmate", "cspawn_butler") { Category = "Spawn Enemies"},//Tested on Dine

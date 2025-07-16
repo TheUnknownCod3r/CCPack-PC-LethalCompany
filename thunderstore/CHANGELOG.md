@@ -1,3 +1,7 @@
+**1.1.15** :
+Fix Landmine Spawns (Should be Networked for all players properly now).
+Add Spawn Turret At Player & Crewmate
+
 **1.1.14** :
 Actually Fix Monster Spawns for all Levels. (Please Note: LethalLevelLoader Moons are not 100% tested, so use with warning that some spawns may not work)
 Inverse Teleporting Players and Crewmates

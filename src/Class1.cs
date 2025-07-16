@@ -22,7 +22,6 @@ using BepInEx.Configuration;
 using System.Reflection;
 using Unity.Netcode;
 using static System.Net.Mime.MediaTypeNames;
-using BepinControl.Component;
 using System.Threading;
 using ControlValley;
 using System.Runtime.InteropServices;
@@ -44,9 +43,9 @@ namespace BepinControl
         // Mod Details
         private const string modGUID = "WarpWorld.CrowdControl";
         private const string modName = "Crowd Control";
-        private const string modVersion = "1.1.14";
+        private const string modVersion = "1.1.15";
 
-        public static string tsVersion = "1.1.14";
+        public static string tsVersion = "1.1.15";
         public static Dictionary<string, (string name, string conn)> version = new Dictionary<string, (string name, string conn)>();
 
         private readonly Harmony harmony = new Harmony(modGUID);
@@ -97,7 +96,6 @@ namespace BepinControl
             // Plugin startup logic
             mls.LogInfo($"Loaded {modGUID}. Patching.");
             harmony.PatchAll(typeof(LethalCompanyControl));
-            harmony.PatchAll(typeof(GUILoader));
             mls.LogInfo($"Initializing Crowd Control");
 
             try
@@ -637,10 +635,43 @@ namespace BepinControl
 
 
                             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, pos, Quaternion.Euler(-90, 0, 0), LethalCompanyControl.currentStart.propsContainer);
-
+                            gameObject.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene:true);//spawn the network obj so we can have all players synced //fixes bugs with this.
                             break;
                         }
+                    case "turret":
+                        {
 
+                            int id = int.Parse(values[1]);
+                            PlayerControllerB player = null;
+                            foreach (var playero in StartOfRound.Instance.allPlayerScripts)
+                            {
+                                if (playero != null && playero.isActiveAndEnabled && !playero.isPlayerDead && (int)playero.playerClientId == id && playero.isPlayerControlled)
+                                    player = playero;
+                            }
+
+                            if (player == null) return true;
+
+                            GameObject prefab = null;
+                            GameObject[] MapHazards = Resources.FindObjectsOfTypeAll<GameObject>();
+                            foreach (var hazard in MapHazards)
+                            {
+                                if (hazard.name.ToLower().Contains("turretcont"))
+                                {
+                                    prefab = hazard;
+                                    break;
+                                }
+                            }
+                            if (prefab == null) return true;
+
+                            Vector3 pos = player.transform.position + player.transform.forward * 5.0f - player.transform.up * 0.5f;
+                            Vector3 test = RoundManager.Instance.GetNavMeshPosition(pos, default(UnityEngine.AI.NavMeshHit), 5f, -1);
+                            Vector3 dist = (test - pos);
+
+                            if (dist.magnitude < 6.0f) pos = test;
+                            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, pos, Quaternion.Euler(0, 0, 0), LethalCompanyControl.currentStart.propsContainer);
+                            gameObject.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);//spawn the network obj so we can have all players synced //fixes bugs with this.
+                            break;
+                        }
                     case "credits":
 
                         {

@@ -1,23 +1,25 @@
-﻿using ControlValley;
-using DunGen;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using BepinControl;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Reflection;
+using System.Threading;
+using Unity.Netcode;
+using UnityEngine;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
-using System.Xml.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using GameNetcodeStuff;
+using HarmonyLib;
+using Steamworks;
 using Unity.Netcode;
 using UnityEngine;
-using static System.Net.Mime.MediaTypeNames;
-using static UnityEngine.EventSystems.EventTrigger;
-using static UnityEngine.GraphicsBuffer;
-using Zeekerss.Core.Singletons;
-
 
 
 
@@ -1138,12 +1140,11 @@ namespace ControlValley
 
             List<PlayerControllerB> list = new List<PlayerControllerB>();
 
-            foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
+            foreach (PlayerControllerB player in UnityEngine.Object.FindObjectsByType<PlayerControllerB>(FindObjectsSortMode.None))
             {
-                if (player != null && !player.isPlayerDead && !player.IsServer && player.isActiveAndEnabled && player.isPlayerControlled)
+                if (player != null && (!player.isPlayerDead || player.isPlayerDead) && !player.IsServer && player.isActiveAndEnabled && player.isPlayerControlled)
                     list.Add(player);
             }
-
             if (list.Count <= 0)
             {
                 return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_RETRY, "Could not find Active player to Spawn Crew Body");
@@ -1151,7 +1152,7 @@ namespace ControlValley
 
             try
             {
-                var player = list[UnityEngine.Random.Range(0, StartOfRound.Instance.connectedPlayersAmount)]; //test fixing Crew bodies?
+                 var player = list[UnityEngine.Random.Range(0, StartOfRound.Instance.connectedPlayersAmount)]; //test fixing Crew bodies?
 
                 if (player.isInHangarShipRoom) status = CrowdResponse.Status.STATUS_RETRY;
                 else
@@ -1343,7 +1344,7 @@ namespace ControlValley
                     return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_RETRY, "");
 
             }    
-            if (enteredText[1] == "landmine")
+            if (enteredText[1] == "landmine" || enteredText[1] == "turret")
             {
                 if (playerRef.isInElevator) return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE, "Player is inside ship");
                 found = true;
@@ -1430,10 +1431,16 @@ namespace ControlValley
                         UnityEngine.Object.Destroy(gameObject);
                         return;
                     }
-                    
+
                     if (enteredText[1] == "landmine")
                     {
                         HUDManager.Instance.AddTextToChatOnServer($"<size=0>/cc_landmine_{(int)playerRef.playerClientId}</size>");
+
+                        return;
+                    }
+                    if (enteredText[1] == "turret")
+                    {
+                        HUDManager.Instance.AddTextToChatOnServer($"<size=0>/cc_turret_{(int)playerRef.playerClientId}</size>");
 
                         return;
                     }
@@ -1628,7 +1635,18 @@ namespace ControlValley
 
                                 return;
                             }
+                            if (enteredText[1] == "turret")
+                            {
+                                HUDManager.Instance.AddTextToChatOnServer($"<size=0>/cc_turret_{(int)player.playerClientId}</size>");
 
+                                return;
+                            }
+                            if (enteredText[1] == "spiketrap")
+                            {
+                                HUDManager.Instance.AddTextToChatOnServer($"<size=0>/cc_spiketrap_{(int)player.playerClientId}</size>");
+
+                                return;
+                            }
                             if (outsideEnemy.enemyType.enemyName.ToLower().Contains(enteredText[1]))
                             {
                                 try
@@ -2124,14 +2142,6 @@ namespace ControlValley
             Terminal terminal = UnityEngine.Object.FindObjectOfType<Terminal>();
             var veh = terminal.buyableVehicles[0];
             string[] enteredText = req.code.Split('_');
-            if (enteredText.Length == 2)
-            {
-            }
-            else
-            {
-                return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
-            }
-
             try
             {
 
@@ -2156,7 +2166,6 @@ namespace ControlValley
             return new CrowdResponse(req.GetReqID(), status, message);
         }
 
-
         public static CrowdResponse TurnOnVehicle(ControlClient client, CrowdRequest req)
         {
             CrowdResponse.Status status = CrowdResponse.Status.STATUS_SUCCESS;
@@ -2164,19 +2173,12 @@ namespace ControlValley
             var playerRef = StartOfRound.Instance.localPlayerController;
             string[] enteredText = req.code.Split('_');
             bool found = false;
-            VehicleController Veh1 = UnityEngine.Object.FindObjectOfType<VehicleController>();
-            if (enteredText.Length == 2)
-            {
-            }
-            else
-            {
-                return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
-            }
+            VehicleController Vehicle = UnityEngine.Object.FindObjectOfType<VehicleController>();
             if (!found)
             {
                 try
                 {
-                    if (Veh1.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
+                    if (Vehicle == null || Vehicle !=null && Vehicle.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
                     else found = true;
                 }
                 catch (Exception e) { status = CrowdResponse.Status.STATUS_RETRY; }
@@ -2190,16 +2192,9 @@ namespace ControlValley
                     {
                         LethalCompanyControl.ActionQueue.Enqueue(() =>
                         {
-                            if (Veh1)
-                            {
-                                Veh1.carHP = 12;
-                                Veh1.ignitionStarted = true;
-                                Veh1.StartIgnitionServerRpc(1);
-                            }
-                            else
-                            {
-
-                            }
+                            Vehicle.carHP = Vehicle.baseCarHP;
+                            Vehicle.ignitionStarted = true;
+                            Vehicle.StartIgnitionServerRpc(playerRef.playerLevelNumber);
                         });
                     }
                 }
@@ -2219,19 +2214,12 @@ namespace ControlValley
             var playerRef = StartOfRound.Instance.localPlayerController;
             bool found = false;
             string[] enteredText = req.code.Split('_');
-            VehicleController Veh1 = UnityEngine.Object.FindObjectOfType<VehicleController>();
-            if (enteredText.Length == 2)
-            {
-            }
-            else
-            {
-                return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
-            }
+            VehicleController Vehicle = UnityEngine.Object.FindObjectOfType<VehicleController>();
             if (!found)
             {
                 try
                 {
-                    if (Veh1.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
+                    if (Vehicle == null || Vehicle != null && Vehicle.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
                     else found = true;
                 }
                 catch (Exception e) { status = CrowdResponse.Status.STATUS_RETRY; }
@@ -2245,14 +2233,7 @@ namespace ControlValley
                     {
                         LethalCompanyControl.ActionQueue.Enqueue(() =>
                         {
-                            if (Veh1)
-                            {
-                                Veh1.SpringDriverSeatServerRpc();
-                            }
-                            else
-                            {
-
-                            }
+                            Vehicle.SpringDriverSeatServerRpc();
                         });
                     }
                 }
@@ -2272,19 +2253,12 @@ namespace ControlValley
             var playerRef = StartOfRound.Instance.localPlayerController;
             bool found = false;
             string[] enteredText = req.code.Split('_');
-            VehicleController Veh1 = UnityEngine.Object.FindObjectOfType<VehicleController>();
-            if (enteredText.Length == 3)
-            {
-            }
-            else
-            {
-                return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
-            }
+            VehicleController Vehicle = UnityEngine.Object.FindObjectOfType<VehicleController>();
             if (!found)
             {
                 try
                 {
-                    if (Veh1.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
+                    if (Vehicle == null || Vehicle != null && Vehicle.currentDriver != playerRef) status = CrowdResponse.Status.STATUS_RETRY;
                     else found = true;
                 }
                 catch (Exception e) { status = CrowdResponse.Status.STATUS_RETRY; }
@@ -2298,14 +2272,8 @@ namespace ControlValley
                     {
                         LethalCompanyControl.ActionQueue.Enqueue(() =>
                         {
-                            if (Veh1)
-                            {
-                                Veh1.RemoveKeyFromIgnition();
-                            }
-                            else
-                            {
-
-                            }
+                            Vehicle.ignitionStarted = false;
+                            Vehicle.RemoveKeyFromIgnitionServerRpc(playerRef.playerLevelNumber);
                         });
                     }
                 }
@@ -2325,19 +2293,12 @@ namespace ControlValley
             var playerRef = StartOfRound.Instance.localPlayerController;
             bool found = false;
             string[] enteredText = req.code.Split('_');
-            VehicleController Veh1 = UnityEngine.Object.FindObjectOfType<VehicleController>();
-            if (enteredText.Length == 2)
-            {
-            }
-            else
-            {
-                return new CrowdResponse(req.GetReqID(), CrowdResponse.Status.STATUS_FAILURE);
-            }
+            VehicleController Vehicle = UnityEngine.Object.FindObjectOfType<VehicleController>();
             if (!found)
             {
                 try
                 {
-                    if (Veh1.currentDriver == playerRef) status = CrowdResponse.Status.STATUS_RETRY;
+                    if (Vehicle == null || Vehicle != null && Vehicle.currentDriver == playerRef) status = CrowdResponse.Status.STATUS_RETRY;
                     else found = true;
                 }
                 catch (Exception e) { status = CrowdResponse.Status.STATUS_RETRY; }
@@ -2351,14 +2312,8 @@ namespace ControlValley
                     {
                         LethalCompanyControl.ActionQueue.Enqueue(() =>
                         {
-                            if (Veh1)
-                            {
-                                Veh1.DestroyCarServerRpc(1);
-                            }
-                            else
-                            {
-
-                            }
+                            Vehicle.carDestroyed = true;
+                            Vehicle.DestroyCarServerRpc(playerRef.playerLevelNumber);
                         });
                     }
                 }
