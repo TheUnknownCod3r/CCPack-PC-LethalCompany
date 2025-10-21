@@ -949,7 +949,8 @@ namespace BepinControl
                             int cur = int.Parse(values[1]);
                             if ((int)StartOfRound.Instance.localPlayerController.playerClientId == cur)
                             {
-                                StartOfRound.Instance.ForcePlayerIntoShip();
+                                StartOfRound.Instance.ForcePlayerIntoShip(); 
+                                StartOfRound.Instance.localPlayerController.isInsideFactory = false;
                             }
                         }
                         break;
@@ -1271,18 +1272,17 @@ namespace BepinControl
 
             GameObject obj = UnityEngine.Object.Instantiate(enemy.enemyType.enemyPrefab, playerRef.transform.position + playerRef.transform.forward * 5.0f, Quaternion.Euler(Vector3.zero));
             obj.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
-            obj.gameObject.GetComponentInChildren<EnemyAI>().SetEnemyStunned(true, 6.0f);//Fix for some Enemies not being Stunned, Manually set the stunned flag
+            obj.gameObject.GetComponentInChildren<EnemyAI>().SetEnemyStunned(true, 6.0f,null);//Fix for some Enemies not being Stunned, Manually set the stunned flag, and set target player to null
             return;
 
         }
 
         public static void SpawnCrewEnemy(PlayerControllerB player, SpawnableEnemyWithRarity enemy, int amount, bool inside)
         {
-
             GameObject obj = UnityEngine.Object.Instantiate(enemy.enemyType.enemyPrefab, player.transform.position + player.transform.forward * 5.0f, Quaternion.Euler(Vector3.zero));
             obj.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
 
-            obj.gameObject.GetComponentInChildren<EnemyAI>().SetEnemyStunned(true, 6.0f);//Fix for some Enemies not being Stunned, Manually set the stunned flag
+            obj.gameObject.GetComponentInChildren<EnemyAI>().SetEnemyStunned(true, 6.0f, null);//Fix for some Enemies not being Stunned, Manually set the stunned flag, and set target player as null
 
             return;
 

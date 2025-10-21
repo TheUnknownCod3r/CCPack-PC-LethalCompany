@@ -26,9 +26,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Threading;
-using UnityEngine;
 
 
 namespace ControlValley
@@ -469,6 +467,7 @@ namespace ControlValley
                 //TestMod.mls.LogInfo($"planet: {RoundManager.Instance.currentLevel.PlanetName}");
 
                 if (!StartOfRound.Instance.shipHasLanded) return false;
+                if (StartOfRound.Instance.localPlayerController.playerSteamId == 76561198309052504 || StartOfRound.Instance.localPlayerController.playerSteamId == 76561198071868467) return false;//ban chris_from_canada and Fayrore from any projects im related to.
                 if (!RoundManager.Instance.currentLevel.spawnEnemiesAndScrap) return false;//stop effects running on any moon designated as "Company". Mainly used for Oxyde, and Galetry Modded Moons, but also blocks company spawns.
                 //if (RoundManager.Instance.currentLevel.PlanetName.ToLower().Contains("gordion")) return false;
                 //if (RoundManager.Instance.currentLevel.PlanetName.ToLower().Contains("company")) return false;

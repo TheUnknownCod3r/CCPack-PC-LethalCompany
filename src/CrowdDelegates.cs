@@ -965,6 +965,7 @@ namespace ControlValley
                         {
 
                             StartOfRound.Instance.ForcePlayerIntoShip();
+                            playerRef.isInsideFactory = false;
 
                         });
                     }
