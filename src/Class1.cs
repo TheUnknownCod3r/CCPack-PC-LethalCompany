@@ -638,6 +638,8 @@ namespace BepinControl
                             var mapObjectContainer = GameObject.FindGameObjectWithTag("MapPropsContainer");
                             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, pos, Quaternion.Euler(-90, 0, 0), mapObjectContainer.transform);//link to mapObjectsContainer, since its what normal objects use and should clear each round
                             gameObject.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
+                            gameObject.GetComponent<Landmine>().mineActivated = false;
+                            Instance.StartCoroutine(TriggerTrapTimer(gameObject, "Landmine"));
                             spawnedHazards.Add(gameObject);
                             break;
                         }
@@ -675,6 +677,8 @@ namespace BepinControl
                             var mapObjectContainer = GameObject.FindGameObjectWithTag("MapPropsContainer");
                             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, pos, Quaternion.Euler(0, 0, 0), mapObjectContainer.transform);
                             gameObject.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);//spawn the network obj so we can have all players synced //fixes bugs with this.
+                            gameObject.GetComponent<Turret>().turretActive = false;
+                            Instance.StartCoroutine(TriggerTrapTimer(gameObject, "Turret"));
                             spawnedHazards.Add(gameObject);
                             break;
                         }
@@ -718,6 +722,8 @@ namespace BepinControl
                             var mapObjectContainer = GameObject.FindGameObjectWithTag("MapPropsContainer");//I think we need to do this, since we link it to the current round
                             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, pos, Quaternion.Euler(0, 0, 0), mapObjectContainer.transform);
                             var netObj = gameObject.GetComponentInChildren<NetworkObject>();netObj.Spawn(destroyWithScene:true);
+                            gameObject.GetComponent<SpikeRoofTrap>().trapActive = false;
+                            Instance.StartCoroutine(TriggerTrapTimer(gameObject,"SpikeTrap"));
                             spawnedHazards.Add(gameObject);
                             break;
                         }
@@ -1288,7 +1294,17 @@ namespace BepinControl
 
 
         }
-
+        public static IEnumerator TriggerTrapTimer(GameObject trapObj, string type)
+        {
+            yield return new WaitForSeconds(2);
+            switch (type)
+            {
+                case "SpikeTrap": trapObj.GetComponent<SpikeRoofTrap>().trapActive = true; break;
+                case "Landmine": trapObj.GetComponent<Landmine>().mineActivated = true; break;
+                case "Turret": trapObj.GetComponent<Turret>().turretActive = true; break;
+            }
+        }
     }
+
 
 }
