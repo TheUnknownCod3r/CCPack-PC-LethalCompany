@@ -77,7 +77,6 @@ namespace BepinControl
 
         void Awake()
         {
-
             Instance = this;
             mls = BepInEx.Logging.Logger.CreateLogSource("Crowd Control");
             // Plugin startup logic
@@ -617,7 +616,7 @@ namespace BepinControl
                             GameObject[] array2 = array;
                             foreach (GameObject val in array2)
                             {
-                                if (((UnityEngine.Object)val).name == "Landmine")
+                                if (val.name == "Landmine")
                                 {
                                     prefab = val;
                                     LandminePrefab = val;
@@ -630,7 +629,7 @@ namespace BepinControl
 
                             Vector3 pos = player.transform.position + player.transform.forward * 5.0f - player.transform.up * 0.5f;
 
-                            Vector3 test = RoundManager.Instance.GetNavMeshPosition(pos, default(UnityEngine.AI.NavMeshHit), 5f, -1);
+                            Vector3 test = RoundManager.Instance.GetNavMeshPosition(pos);
                             Vector3 dist = (test - pos);
 
                             if (dist.magnitude < 6.0f) pos = test;
@@ -638,7 +637,7 @@ namespace BepinControl
                             var mapObjectContainer = GameObject.FindGameObjectWithTag("MapPropsContainer");
                             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, pos, Quaternion.Euler(-90, 0, 0), mapObjectContainer.transform);//link to mapObjectsContainer, since its what normal objects use and should clear each round
                             gameObject.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
-                            gameObject.GetComponent<Landmine>().mineActivated = false;
+                            gameObject.GetComponent<Landmine>().ToggleMine(false);
                             Instance.StartCoroutine(TriggerTrapTimer(gameObject, "Landmine"));
                             spawnedHazards.Add(gameObject);
                             break;
@@ -677,7 +676,7 @@ namespace BepinControl
                             var mapObjectContainer = GameObject.FindGameObjectWithTag("MapPropsContainer");
                             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, pos, Quaternion.Euler(0, 0, 0), mapObjectContainer.transform);
                             gameObject.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);//spawn the network obj so we can have all players synced //fixes bugs with this.
-                            gameObject.GetComponent<Turret>().turretActive = false;
+                            gameObject.GetComponent<Turret>().ToggleTurretEnabled(false);
                             Instance.StartCoroutine(TriggerTrapTimer(gameObject, "Turret"));
                             spawnedHazards.Add(gameObject);
                             break;
@@ -722,7 +721,7 @@ namespace BepinControl
                             var mapObjectContainer = GameObject.FindGameObjectWithTag("MapPropsContainer");//I think we need to do this, since we link it to the current round
                             GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, pos, Quaternion.Euler(0, 0, 0), mapObjectContainer.transform);
                             var netObj = gameObject.GetComponentInChildren<NetworkObject>();netObj.Spawn(destroyWithScene:true);
-                            gameObject.GetComponent<SpikeRoofTrap>().trapActive = false;
+                            gameObject.GetComponent<SpikeRoofTrap>().ToggleSpikesEnabled(false);
                             Instance.StartCoroutine(TriggerTrapTimer(gameObject,"SpikeTrap"));
                             spawnedHazards.Add(gameObject);
                             break;
@@ -841,12 +840,12 @@ namespace BepinControl
                             }
                             grab.InteractItem();
 
-
                             playerRef.playerBodyAnimator.SetBool("GrabInvalidated", false);
                             playerRef.playerBodyAnimator.SetBool("GrabValidated", false);
                             playerRef.playerBodyAnimator.SetBool("cancelHolding", false);
                             playerRef.playerBodyAnimator.ResetTrigger("Throw");
-
+                            playerRef.playerBodyAnimator.ResetTrigger("SwitchHoldAnimation");
+                            playerRef.playerBodyAnimator.ResetTrigger("SwitchHoldAnimationTwoHanded");
                             ControlValley.CrowdDelegates.callFunc(playerRef, "SetSpecialGrabAnimationBool", new System.Object[] { true, null });
 
                             playerRef.isGrabbingObjectAnimation = true;
@@ -861,6 +860,10 @@ namespace BepinControl
                             else
                             {
                                 playerRef.grabObjectAnimationTime = 0.4f;
+                            }
+                            if (grab.itemProperties.itemName.ToLower().Contains("lockpickeritem"))
+                            {
+                                grab.gameObject.GetComponent<LockPicker>().RetractClaws();
                             }
 
                             ControlValley.CrowdDelegates.callFunc(playerRef, "GrabObjectServerRpc", new NetworkObjectReference(networkObject));
@@ -1296,12 +1299,12 @@ namespace BepinControl
         }
         public static IEnumerator TriggerTrapTimer(GameObject trapObj, string type)
         {
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(6f);//wait 6 seconds, same as for other enemies
             switch (type)
             {
-                case "SpikeTrap": trapObj.GetComponent<SpikeRoofTrap>().trapActive = true; break;
-                case "Landmine": trapObj.GetComponent<Landmine>().mineActivated = true; break;
-                case "Turret": trapObj.GetComponent<Turret>().turretActive = true; break;
+                case "SpikeTrap": trapObj.GetComponent<SpikeRoofTrap>().ToggleSpikesEnabled(true); break;
+                case "Landmine": trapObj.GetComponent<Landmine>().ToggleMine(true); break;
+                case "Turret": trapObj.GetComponent<Turret>().ToggleTurretEnabled(true); break;
             }
         }
     }
