@@ -69,7 +69,6 @@ namespace ControlValley
                 {"heal", CrowdDelegates.Heal},
                 {"healcrew", CrowdDelegates.HealCrew},
 
-                {"launch", CrowdDelegates.Launch},
                 {"fast", CrowdDelegates.FastMove},
                 {"slow", CrowdDelegates.SlowMove},
                 {"hyper", CrowdDelegates.HyperMove},

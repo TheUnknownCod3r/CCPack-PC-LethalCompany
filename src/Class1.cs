@@ -14,6 +14,7 @@ using static TerminalApi.TerminalApi;
 using TerminalApi.Events;
 using static TerminalApi.Events.Events;
 using static UnityEngine.GraphicsBuffer;
+using UnityEngine.AI;
 
 namespace BepinControl
 {
@@ -24,9 +25,9 @@ namespace BepinControl
         // Mod Details
         private const string modGUID = "WarpWorld.CrowdControl";
         private const string modName = "Crowd Control";
-        private const string modVersion = "1.1.16";
+        private const string modVersion = "1.1.17";
 
-        public static string tsVersion = "1.1.16";
+        public static string tsVersion = "1.1.17";
         public static Dictionary<string, (string name, string conn)> version = new Dictionary<string, (string name, string conn)>();
 
         private readonly Harmony harmony = new Harmony(modGUID);
@@ -151,13 +152,11 @@ namespace BepinControl
             EnemyAI[] spawnableEnemies2 = Resources.FindObjectsOfTypeAll<EnemyAI>();
             foreach (var enemy in spawnableEnemies2)
             {
-                SpawnableEnemyWithRarity currEnemy = new SpawnableEnemyWithRarity();
-                currEnemy.enemyType = enemy.enemyType;
+                SpawnableEnemyWithRarity currEnemy = new SpawnableEnemyWithRarity(enemy.enemyType,0);
                 currEnemy.enemyType.enemyName = enemy.enemyType.enemyName;
                 currEnemy.enemyType.enemyPrefab = enemy.enemyType.enemyPrefab;
                 currEnemy.enemyType.name = enemy.enemyType.name;
                 LethalCompanyControl.mls.LogInfo("Enemy Name: " + enemy.enemyType.name + ", Alternate Name: " + enemy.enemyType.enemyName);//maybe better to scan for .name instead of enemyName, as .name is no spaces, enemyName has spaces.
-                currEnemy.rarity = 0;
                 bool exists = RoundManager.Instance.currentLevel.Enemies.Contains(currEnemy);
                 if (exists) { }
                 else
@@ -861,11 +860,6 @@ namespace BepinControl
                             {
                                 playerRef.grabObjectAnimationTime = 0.4f;
                             }
-                            if (grab.itemProperties.itemName.ToLower().Contains("lockpickeritem"))
-                            {
-                                grab.gameObject.GetComponent<LockPicker>().RetractClaws();
-                            }
-
                             ControlValley.CrowdDelegates.callFunc(playerRef, "GrabObjectServerRpc", new NetworkObjectReference(networkObject));
 
                             Coroutine goc = (Coroutine)ControlValley.CrowdDelegates.getProperty(playerRef, "grabObjectCoroutine");
@@ -1036,8 +1030,8 @@ namespace BepinControl
 
                             foreach (var player in StartOfRound.Instance.allPlayerScripts)
                             {
-                                if (player != null && player.isActiveAndEnabled && !player.isPlayerDead && (int)player.playerClientId == cur && player.isPlayerControlled)
-                                    player.SpawnDeadBody((int)player.playerClientId, player.transform.up * 2.0f + player.transform.forward * 5.0f, 0, player);
+                                if (player != null && player.isActiveAndEnabled && !player.isPlayerDead && (int)player.actualClientId == cur && player.isPlayerControlled)
+                                    player.SpawnDeadBody((int)player.actualClientId, player.transform.up * 2.0f + player.transform.forward * 5.0f, 0, player);
                             }
                         }
                         break;
@@ -1083,7 +1077,7 @@ namespace BepinControl
                                 var playerRef = StartOfRound.Instance.localPlayerController;
                                 var randomSeed = new System.Random(StartOfRound.Instance.randomMapSeed + 17 + (int)GameNetworkManager.Instance.localPlayerController.playerClientId);//use the actual seed function the tele uses, avoid invalid tp
                                 Vector3 position = RoundManager.Instance.insideAINodes[randomSeed.Next(0, RoundManager.Instance.insideAINodes.Length)].transform.position;//inside nodes only, but mineshaft counts upstairs, so y check 
-                                Vector3 inBoxPredictable = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(position, randomSeed: randomSeed);
+                                Vector3 inBoxPredictable = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(position,10,default(NavMeshHit), randomSeed: randomSeed);
                                 StartOfRound.Instance.localPlayerController.TeleportPlayer(inBoxPredictable);
                                 playerRef.isInsideFactory = true;playerRef.isInHangarShipRoom = false;playerRef.isInElevator = false;//all bools referring to player, so fine to go on one line as readable.
                             }
@@ -1290,7 +1284,6 @@ namespace BepinControl
         {
             GameObject obj = UnityEngine.Object.Instantiate(enemy.enemyType.enemyPrefab, player.transform.position + player.transform.forward * 5.0f, Quaternion.Euler(Vector3.zero));
             obj.gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
-
             obj.gameObject.GetComponentInChildren<EnemyAI>().SetEnemyStunned(true, 6.0f, null);//Fix for some Enemies not being Stunned, Manually set the stunned flag, and set target player as null
 
             return;
