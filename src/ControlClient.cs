@@ -115,6 +115,11 @@ namespace ControlValley
                 {"spawn_eater", CrowdDelegates.Spawn},
                 {"spawn_snake", CrowdDelegates.Spawn},
                 {"spawn_kiwi", CrowdDelegates.Spawn},
+                {"spawn_growths", CrowdDelegates.Spawn },
+                {"spawn_bloom", CrowdDelegates.Spawn },
+                {"spawn_pum", CrowdDelegates.Spawn },
+                {"spawn_bush", CrowdDelegates.Spawn },
+                {"spawn_ray", CrowdDelegates.Spawn },
 
                 {"cspawn_pede", CrowdDelegates.CrewSpawn},
                 {"cspawn_spider", CrowdDelegates.CrewSpawn},
@@ -141,6 +146,11 @@ namespace ControlValley
                 {"cspawn_eater", CrowdDelegates.CrewSpawn},
                 {"cspawn_snake", CrowdDelegates.CrewSpawn},
                 {"cspawn_kiwi", CrowdDelegates.CrewSpawn},
+                {"cspawn_growths", CrowdDelegates.CrewSpawn},
+                {"cspawn_bloom", CrowdDelegates.CrewSpawn},
+                {"cspawn_pum",CrowdDelegates.CrewSpawn},
+                {"cspawn_bush", CrowdDelegates.CrewSpawn},
+                {"cspawn_ray", CrowdDelegates.CrewSpawn},
 
                 { "give_binoculars", CrowdDelegates.GiveItem},//binoculars
                 { "give_boombox", CrowdDelegates.GiveItem},//boombox

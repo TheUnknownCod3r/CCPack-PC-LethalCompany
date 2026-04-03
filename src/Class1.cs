@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Logging;
-using HarmonyLib;
-using UnityEngine;
-using System.Collections;
-using GameNetcodeStuff;
-using Unity.Netcode;
-using System.Threading;
 using ControlValley;
+using GameNetcodeStuff;
+using HarmonyLib;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
 using TerminalApi.Classes;
-using static TerminalApi.TerminalApi;
 using TerminalApi.Events;
-using static TerminalApi.Events.Events;
-using static UnityEngine.GraphicsBuffer;
+using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.AI;
+using Zeekerss.Core.Singletons;
+using static TerminalApi.Events.Events;
+using static TerminalApi.TerminalApi;
+using static UnityEngine.GraphicsBuffer;
 
 namespace BepinControl
 {
@@ -427,6 +428,7 @@ namespace BepinControl
 
                             break;
                         }
+                    
                     case "cspawn":
                         {
                             if (!isHost) return true;
@@ -485,7 +487,10 @@ namespace BepinControl
                                         UnityEngine.Object.Destroy(gameObject);
                                         return;
                                     }
-
+                                    if (values[1] == "bush")
+                                    {
+                                        Singleton<MoldSpreadManager>.Instance.GenerateMold(player.transform.position + player.transform.forward * 5.0f, 2);//2 vain shrouds to spawn the fox, these spawn everytime they run the spawn fox
+                                    }
                                     if (outsideEnemy.enemyType.enemyName.ToLower().Contains(values[1]))
                                     {
                                         try
